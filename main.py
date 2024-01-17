@@ -1,12 +1,9 @@
 from matplotlib import pyplot as plt
 import numpy as np
-# from scipy import ndimage
-# from scipy.ndimage import convolve
 
 def rgb2gray(image):
 
     r, g, b = image[:,:,0], image[:,:,1], image[:,:,2]
-
     grayscale_image = 0.2989 * r + 0.5870 * g + 0.1140 * b
     return grayscale_image
 
@@ -30,50 +27,35 @@ def sobel_filters(img):
     theta = np.arctan2(Iy, Ix)
     return (G, theta)
 
-# def conv(image, kernal):
-#     output = image.copy()
-#     middle = len(kernal)//2
-#     size = len(kernal)
-#     for i, row in enumerate(image):
-#         for j, ele in enumerate(row):
-#             startx = j - middle
-#             starty = i - middle
-#             total = 0
-#             divide = 0
-#             for k in range(size):
-#                 if (starty + k) < 0 or (starty + k) >= len(image):
-#                     continue
-#                 for p in range(size):
-#                     if (startx + p) < 0 or (startx + p) >= len(row):
-#                         continue
-#                     total += kernal[k][p] * image[starty + k][startx + p]
-#                     divide += kernal[k][p]
-#             output[i][j] = total / divide
-#
-#     return output
-def conv(image, kernel):
-    m, n = kernel.shape
-    if (m == n):
-        y, x = image.shape
-        y = y - m + 1
-        x = x - m + 1
-        new_image = np.zeros((y,x))
-        for i in range(y):
-            for j in range(x):
-                new_image[i][j] = np.sum(image[i:i+m, j:j+m]*kernel)
-    return new_image
-image = plt.imread('2.jpg')
-print(len(image))
-print(image[0][0][0])
+def conv(image, kernal):
+    output = image.copy()
+    middle = len(kernal)//2
+    size = len(kernal)
+    for i, row in enumerate(image):
+        for j, ele in enumerate(row):
+            startx = j - middle
+            starty = i - middle
+            total = 0
 
-print(image.ndim)
-output = image.copy()
-image = rgb2gray(image)
-print(image)
-gaussian = gaussian_kernal(3,1)
-#print(gaussian)
-image = conv(image,gaussian)
-image, theta = sobel_filters(image)
+            for k in range(size):
+                if (starty + k) < 0 or (starty + k) >= len(image):
+                    continue
+                for p in range(size):
+                    if (startx + p) < 0 or (startx + p) >= len(row):
+                        continue
+                    total += kernal[k][p] * image[starty + k][startx + p]
+
+            output[i][j] = total
+
+    return output
+
+
+image = plt.imread('redFlower.jpg') #read in the image
+image = rgb2gray(image) # turn the image to gray scale
+
+gaussian = gaussian_kernal(3,1) # create the gaussian kernal
+image = conv(image,gaussian) #convolve the image to blur
+image, theta = sobel_filters(image) #apply the sobel filter to find edges
 plt.imshow(image, 'gray')
 
 plt.show()
