@@ -1,7 +1,7 @@
 from matplotlib import pyplot as plt
 import numpy as np
-from scipy import ndimage
-from scipy.ndimage import convolve
+# from scipy import ndimage
+# from scipy.ndimage import convolve
 
 def rgb2gray(image):
 
@@ -22,37 +22,47 @@ def sobel_filters(img):
     Kx = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]], np.float32)
     Ky = np.array([[1, 2, 1], [0, 0, 0], [-1, -2, -1]], np.float32)
 
-    Ix = ndimage.convolve(img, Kx)
-    Iy = ndimage.convolve(img, Ky)
+    Ix = conv(img, Kx)
+    Iy = conv(img, Ky)
 
     G = np.hypot(Ix, Iy)
     G = G / G.max() * 255
     theta = np.arctan2(Iy, Ix)
     return (G, theta)
 
-def conv(image, kernal):
-    output = image.copy()
-    middle = len(kernal)//2
-    size = len(kernal)
-    for i, row in enumerate(image):
-        for j, ele in enumerate(row):
-            startx = j - middle
-            starty = i - middle
-            total = 0
-            divide = 0
-            for k in range(size):
-                if (starty + k) < 0 or (starty + k) >= len(image):
-                    continue
-                for p in range(size):
-                    if (startx + p) < 0 or (startx + p) >= len(row):
-                        continue
-                    total += kernal[k][p] * image[starty + k][startx + p]
-                    divide += kernal[k][p]
-            output[i][j] = total / divide
-
-    return output
-
-image = plt.imread('sudo1.png')
+# def conv(image, kernal):
+#     output = image.copy()
+#     middle = len(kernal)//2
+#     size = len(kernal)
+#     for i, row in enumerate(image):
+#         for j, ele in enumerate(row):
+#             startx = j - middle
+#             starty = i - middle
+#             total = 0
+#             divide = 0
+#             for k in range(size):
+#                 if (starty + k) < 0 or (starty + k) >= len(image):
+#                     continue
+#                 for p in range(size):
+#                     if (startx + p) < 0 or (startx + p) >= len(row):
+#                         continue
+#                     total += kernal[k][p] * image[starty + k][startx + p]
+#                     divide += kernal[k][p]
+#             output[i][j] = total / divide
+#
+#     return output
+def conv(image, kernel):
+    m, n = kernel.shape
+    if (m == n):
+        y, x = image.shape
+        y = y - m + 1
+        x = x - m + 1
+        new_image = np.zeros((y,x))
+        for i in range(y):
+            for j in range(x):
+                new_image[i][j] = np.sum(image[i:i+m, j:j+m]*kernel)
+    return new_image
+image = plt.imread('2.jpg')
 print(len(image))
 print(image[0][0][0])
 
